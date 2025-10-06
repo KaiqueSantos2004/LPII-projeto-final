@@ -44,6 +44,15 @@ int main(int argc, char* argv[]) {
         if (client.connect_to_server()) {
             client.run();
         }
+        else {
+            // Esta lógica agora irá funcionar como esperado
+            std::cerr << "\nFalha ao conectar ao servidor. Verifique o IP e a porta e tente novamente." << std::endl;
+            std::cerr << "Pressione Enter para sair..." << std::endl;
+            // Limpa qualquer estado de erro do cin e espera por um Enter
+            std::cin.clear(); 
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.get();
+    }
     } 
     else {
         std::cerr << "Modo inválido. Use 'server' ou 'client'." << std::endl;

@@ -58,7 +58,7 @@ bool Client::connect_to_server(){
     //tenta conectar ao servidor
     if (connect(client_socket, (struct sockaddr*)&server_address, sizeof(server_address)) < 0) 
     {
-        std::cerr << "Falha ao conectar ao servidor." << std::endl;
+        std::cerr << "Falha  conectar ao servidor." << std::endl;
         CLOSE_SOCKET(client_socket);
         client_socket = -1;
         return false;
@@ -111,6 +111,6 @@ void Client::receive_messages()
             break;
         }
 
-        std::cout << "Recebido: " << std::string(buffer, bytes_received) << std::endl;
+        std::cout << "[Recebido] " << std::string(buffer, bytes_received) << std::endl;
     }
 }
