@@ -1,1 +1,28 @@
+Carregadas 7 palavras proibidas.
+Erro no bind do socket.
+Carregadas 7 palavras proibidas.
+Erro no bind do socket.
+Carregadas 7 palavras proibidas.
 Servidor iniciado e escutando na porta 8080
+Nova conexão aceita de 127.0.0.1:57702
+Enviando histórico de mensagens para o cliente 5
+Nova conexão aceita de 127.0.0.1:57710
+Enviando histórico de mensagens para o cliente 6
+Cliente 6: Nenhum sangue jamais me percorreu!
+Cliente 5: Vou te observar!
+Cliente 6: seu lixo
+Cliente 5: seu *****
+Cliente 6: *****
+Cliente desconectado: 6
+Carregadas 7 palavras proibidas.
+Servidor iniciado e escutando na porta 8080
+Nova conexão aceita de 127.0.0.1:59860
+Enviando histórico de mensagens para o cliente 5
+Nova conexão aceita de 127.0.0.1:38716
+Enviando histórico de mensagens para o cliente 6
+Cliente 6: Não enconste, um pau sequer na minha bunda!
+Cliente 5: Quero isso, com muito tesão!
+Cliente 6: seu ****
+Cliente 6: meu Nome é **** kokuro
+Cliente 5: ****man
+Cliente 6: sexo[D

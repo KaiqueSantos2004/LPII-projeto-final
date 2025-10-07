@@ -12,18 +12,40 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
+#include <algorithm> 
+#include <cctype>
 
+
+std::string ClientHandler::filtrar_mensagem(std::string msg) {
+    std::string lower_msg = msg;
+    std::transform(lower_msg.begin(), lower_msg.end(), lower_msg.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+
+    for (const auto& palavra_proibida : forbidden_words) {
+        size_t pos = lower_msg.find(palavra_proibida);
+        
+        while (pos != std::string::npos) {
+            msg.replace(pos, palavra_proibida.length(), std::string(palavra_proibida.length(), '*'));
+            
+            // Atualiza a cópia em minúsculas também para evitar re-encontrar a mesma palavra
+            lower_msg.replace(pos, palavra_proibida.length(), std::string(palavra_proibida.length(), '*'));
+
+            // Procura a próxima ocorrência a partir da posição seguinte
+            pos = lower_msg.find(palavra_proibida, pos + 1);
+        }
+    }
+    return msg;
+}
 
 //construtor: armazena as referências e o socket do cliente
-ClientHandler::ClientHandler(int socket, SharedState& state, Logger& log)
-    : client_socket(socket), shared_state(state), logger(log){
+ClientHandler::ClientHandler(int socket, SharedState& state, Logger& log, const std::vector<std::string>& words)
+    : client_socket(socket), shared_state(state), logger(log), forbidden_words(words) {
 }
 
 //destrutor: garante que o socket seja fechado
 ClientHandler::~ClientHandler(){
     CLOSE_SOCKET(client_socket);
 }
-
 
 void ClientHandler::handle_client() {
     shared_state.add_client(client_socket);
@@ -45,13 +67,16 @@ void ClientHandler::handle_client() {
             logger.log("Cliente desconectado: " + std::to_string(client_socket));
             break;
         }
-        std::string message(buffer, bytes_received);
-        std::stringstream formatted_message_ss;
-        formatted_message_ss << "Cliente " << client_socket << ": " << message;
-        
-        std::string formatted_message = formatted_message_ss.str(); 
-        logger.log(formatted_message);
 
+        std::string message(buffer, bytes_received);
+        
+        std::string mensagem_filtrada = filtrar_mensagem(message);
+        
+        std::stringstream formatted_message_ss;
+        formatted_message_ss << "Cliente " << client_socket << ": " << mensagem_filtrada;
+        std::string formatted_message = formatted_message_ss.str();
+
+        logger.log(formatted_message);
         shared_state.add_message(formatted_message);
 
         std::string broadcast_msg = formatted_message + "\n";

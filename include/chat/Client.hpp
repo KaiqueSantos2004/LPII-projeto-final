@@ -2,6 +2,7 @@
 #define CLIENT_HPP
 
 #include <string>
+#include <atomic>
 
 class Client {
 public:
@@ -22,6 +23,8 @@ private:
     std::string server_ip;
     int         port;
     int         client_socket;
+    std::atomic<bool> running;
+
 
 #ifdef _WIN32
     #define CLOSE_SOCKET closesocket

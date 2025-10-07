@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         int port = std::stoi(argv[2]);
-        Server server(port, "server_log.txt");
+        Server server(port, "server_log.txt", "forbidden_words.txt");
         server.run();
     } 
     else if (mode == "client") {
