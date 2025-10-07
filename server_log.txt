@@ -26,3 +26,21 @@ Cliente 6: seu ****
 Cliente 6: meu Nome é **** kokuro
 Cliente 5: ****man
 Cliente 6: sexo[D
+Cliente desconectado: 5
+Cliente desconectado: 6
+Carregadas 7 palavras proibidas.
+Servidor iniciado e escutando na porta 8080
+Nova conexão aceita de 127.0.0.1:51174
+Enviando histórico de mensagens para o cliente 5
+Cliente 5: Mane aui
+Cliente 5: aqui
+Cliente 5: Com que
+Nova conexão aceita de 127.0.0.1:36688
+Enviando histórico de mensagens para o cliente 6
+Cliente 6: eu sou o novo clinete, aka 6
+Cliente 5: ok, eu tento ver como udar isso
+Cliente desconectado: 6
+Nova conexão aceita de 127.0.0.1:55246
+Enviando histórico de mensagens para o cliente 7
+Cliente 7: EU entendi, vocês mamam os criam então
+Cliente 5: seu ***** você é um ****

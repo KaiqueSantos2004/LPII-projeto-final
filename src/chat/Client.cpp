@@ -98,14 +98,13 @@ void Client::send_messages() {
             }
             break;
         }
-                if (running) {
-            std::cout << ">> ";
-            std::cout.flush();
+        if (running) {
+                std::cout << ">> ";
+                std::cout.flush();
         }
     }
 }
 
-// recebe mensagens do servidor
 void Client::receive_messages() {
     char buffer[4096];
     while (running) {
@@ -114,12 +113,22 @@ void Client::receive_messages() {
         
         if (bytes_received <= 0) {
             if (running) {
-                std::cout << "Desconectado do servidor." << std::endl;
+                std::cout << "\nDesconectado do servidor." << std::endl;
             }
             running = false;
+            #if defined(_WIN32)
+                shutdown(client_socket, SD_BOTH);
+            #else
+                shutdown(client_socket, SHUT_RDWR);
+                close(STDIN_FILENO);
+            #endif
             break;
         }
-
-        std::cout << "Recebido: " << std::string(buffer, bytes_received) << std::endl;
+        
+        std::cout << "\r" << std::string(80, ' ') << "\r"; 
+        std::cout << std::string(buffer, bytes_received) << std::endl;
+        
+        std::cout << ">> ";
+        std::cout.flush();
     }
 }

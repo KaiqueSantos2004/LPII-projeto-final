@@ -1,27 +1,8 @@
-# LPII-projeto-final
+# Servidor de Chat Multiusuário em C++ (LPII -Etapa Final)
 
-Entrega 1 - Biblioteca libtslog + Arquitetura
-
-O que o programa faz:
-Implementa a classe Logger com padrão consumidor-produtor onde múltiplas threads produtoras irão adicionar
-mensagens a ser lidas de forma segura e são enfileiradas para serem consumidas por uma thread escritora 
-que vai escrever tudo em um arquivo test_log.txt. Arquitetura de outras partes do sistema(Server.hpp, client.hpp, etc) são
-classes vazias e  estão apenas como diagramas para o planejamento da próxima etapa
-
-Comandos de compilação e execução:
- ```bash
-g++ main.cpp Logger.cpp -o logger_test -pthread -std=c++17
-./logger_test
-```
-
-
-Entrega 2 - Protótipo CLI de Comunicação 
-
-
-Essa etapa do  projeto faz a implementação de um sistema de chat cliente/servidor TCP concorrente. O servidor é capaz de gerenciar múltiplas conexões de clientes simultaneamente, retransmitindo as mensagens por broadcast para outros participantes.
-
-## Estrutura do Projeto
-
+## Funcionalidades Implementadas
+* **Filtro de Palavras:** Um filtro de palavras proibidas, carregado de um arquivo `forbidden_words.txt`, censura mensagens antes de serem distribuídas.
+* **Logging Thread-Safe:** Eventos importantes do servidor (conexões, desconexões, mensagens) são registrados em um arquivo de log de forma segura.
 ```
 LPII-projeto-final/
 |
@@ -35,34 +16,45 @@ LPII-projeto-final/
 |   |-- utils/
 |   `-- main.cpp
 |-- scripts/          # Contém scripts para automação de testes
+|-- forbidden_words.txt # Arquivo de configuração do filtro de palavras
 |-- Makefile          # Arquivo de build para compilação
 `-- README.md
 ```
+## Diagrama de Sequência
 
-## Funcionalidades (Etapa 2)
+O diagrama abaixo ilustra o fluxo de comunicação para os cenários de conexão de um cliente com um servidor, 
+usando como exemplo uma mensagem:
+![alt text](diagramalp2.drawio.png)
 
-* **Servidor Concorrente:** Aceita múltiplas conexões de clientes, criando uma thread dedicada para cada um.
-* **Broadcast de Mensagens:** Mensagens enviadas por um cliente são retransmitidas para todos os outros clientes conectados.
-* **Logging Thread-Safe:** Todas as atividades importantes (conexões, desconexões, mensagens) são registradas em um arquivo de log de forma segura, utilizando uma biblioteca `Logger` com padrão produtor-consumidor.
-* **CLI Unificado:** Um único executável (`chat_app`) que pode ser iniciado em modo `server` ou `client` via argumentos de linha de comando.
+## Mapeamento Requisitos → Código
 
-## Compilação e Execução
+* **Requisito 1: Servidor TCP concorrente aceitando múltiplos clientes.**
+    * **Mapeamento:** Implementado na classe `Server`, método `run()`. O servidor entra em um loop `while(true)` que aguarda em `accept()`. Para cada nova conexão, uma `std::thread` é criada para executar um objeto `ClientHandler`, permitindo que o servidor aceite novos clientes concorrentemente.
 
-O projeto utiliza um `Makefile` para automatizar o processo de compilação.
+* **Requisito 2: Cada cliente atendido por thread; mensagens retransmitidas para os demais (broadcast).**
+    * **Mapeamento:** A lógica de atendimento é encapsulada na classe `ClientHandler`. O método `handle_client()` recebe mensagens de um cliente e implementa o broadcast chamando `shared_state.get_all_clients()` para obter a lista de destinatários e enviando a mensagem em um loop.
 
-### Pré-requisitos
-* Compilador C++ (g++)
+* **Requisito 3: Logging concorrente de mensagens (usando libtslog).**
+    * **Mapeamento:** A biblioteca `libtslog` é representada pela classe `Logger`, que utiliza o padrão Produtor-Consumidor. Múltiplas threads `ClientHandler` chamam o método `log()` de forma segura (protegido por `std::mutex`) para enfileirar mensagens, enquanto uma única thread interna (`writer_thread_func`) escreve no arquivo.
+
+* **Requisito 4: Cliente CLI: conectar, enviar/receber mensagens.**
+    * **Mapeamento:** Implementado na classe `Client`. O método `run()` cria duas threads: `send_messages()` para ler a entrada do usuário (`std::getline`) e `receive_messages()` para aguardar dados do servidor (`recv()`), permitindo comunicação simultânea.
+
+* **Requisito 5: Proteção de estruturas compartilhadas (lista de clientes, histórico).**
+    * **Mapeamento:** A proteção é realizada pela classe `SharedState`. Todos os métodos que acessam os dados compartilhados (`clients` e `message_history`) utilizam um `std::lock_guard<std::mutex>` para garantir exclusão mútua e prevenir condições de corrida.
+
+### Como Compilar e rodar o projeto
+
+## Pré-requisitos
+* Compilador C++17 ou superior (g++)
 * `make`
-* Biblioteca `pthread` (padrão em sistemas Linux)
-
-### Comandos de Compilação e Execução
+* Biblioteca `pthread`
 
 1.  **Compilar o projeto:**
-    A partir da pasta raiz do projeto, execute o comando:
+    A partir da pasta raiz, execute:
     ```bash
     make
     ```
-    Isso compilará todos os fontes e criará o executável em `bin/chat_app`.
 
 2.  **Iniciar o Servidor:**
     Em um terminal, execute:
@@ -71,36 +63,27 @@ O projeto utiliza um `Makefile` para automatizar o processo de compilação.
     ```
     Exemplo: `./bin/chat_app server 8080`
 
-3.  **Iniciar um Cliente:**
-    Em outro terminal, execute:
+3.  **Iniciar um Cliente Interativo:**
+    Em um novo terminal, execute:
     ```bash
     ./bin/chat_app client <ip_do_servidor> <porta>
     ```
     Exemplo: `./bin/chat_app client 127.0.0.1 8080`
 
 4.  **Limpar arquivos compilados:**
-    Para remover as pastas `bin/` e `build/`, execute:
     ```bash
     make clean
     ```
 
-### Simulação com  Múltiplos Clientes
+### Simulação de Múltiplos Clientes (Teste de Carga)
 
-Como rodar o script de teste  para simular a conexão de N clientes automaticamente.
+Um script está disponível para simular múltiplos clientes automáticos (não-interativos).
 
-1.  Com o servidor já rodando, abra um novo terminal.
-2.  Dê permissão de execução ao script (apenas na primeira vez):
-    ```bash
-    chmod +x scripts/test_clients.sh
-    ```
-3.  Execute o script:
+1.  Com o servidor rodando, abra um novo terminal.
+2.  Execute o script:
     ```bash
     ./scripts/test_clients.sh
     ```
-    Isso iniciará 5 clientes em segundo plano que enviarão uma mensagem de teste. Se o usuário deseja 
-    criar mais é necessário mudar o número de clientes no arquivo de script
-
-# OBS:
-Ao Fechar o servidor por exemplo com Ctrl+C, sistema operacional não libera a porta imediatamente, então é necessário
-ou mudar a porta manualmente ou esperar um período de tempo (geralmente de 30 a 120 segundos).
-
+```
+# Obs:
+    Ao fechar o server com uma porta, o windows não vai fechar a porta imediatamente, então pode ser que o usuário não consiga criar um servidor com a mesma porta antes de um tempo de espera (entre 30 - 180 segundos)
